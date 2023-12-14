@@ -64,7 +64,7 @@ function App() {
             <h1>Working.. 🔥</h1>
             <StCardListBox>
               {todos
-                .filter((todo) => {
+                .filter((todo: Todo) => {
                   return todo.isDone === false;
                 })
                 .map((todo: Todo) => {
@@ -88,7 +88,7 @@ function App() {
             <h1>Done..! 🎉</h1>
             <StCardListBox>
               {todos
-                .filter((todo) => {
+                .filter((todo: Todo) => {
                   return todo.isDone === true;
                 })
                 .map((todo: Todo) => {
