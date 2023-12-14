@@ -5,6 +5,7 @@ import styled, { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
 import { Provider } from "react-redux";
 import store from "./redux/store";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 const GlobalStyle = createGlobalStyle`
 ${reset}
@@ -21,14 +22,18 @@ const StContainer = styled.div`
   width: 100%;
 `;
 
+const queryClient = new QueryClient();
+
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
   <Provider store={store}>
-    <GlobalStyle />
-    <StContainer>
-      <App />
-    </StContainer>
+    <QueryClientProvider client={queryClient}>
+      <GlobalStyle />
+      <StContainer>
+        <App />
+      </StContainer>
+    </QueryClientProvider>
   </Provider>
 );

@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux"; // useSelector
 import styled from "styled-components";
-import { RootStateType } from "./redux/store";
+// import { RootStateType } from "./redux/store";
 import { Todo } from "./types/todoType";
 import { addTodo, deleteTodo, switchTodo } from "./redux/modules/todoSlice";
 import uuid from "react-uuid";
+import { useQuery } from "react-query";
+import { getTodos } from "./api/todoAPI";
 
 function App() {
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
 
-  const todos = useSelector((state: RootStateType) => state.todos);
+  // const todos = useSelector((state: RootStateType) => state.todos);
   const dispatch = useDispatch();
 
   const handleTitleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,6 +44,16 @@ function App() {
     dispatch(switchTodo(id));
   };
 
+  const { data, isLoading, isError } = useQuery("todos", getTodos);
+
+  if (isLoading) {
+    return <h1>로딩중...</h1>;
+  }
+
+  if (isError) {
+    return <h1>오류발생...!</h1>;
+  }
+
   return (
     <StContainer>
       <header>
@@ -63,7 +75,7 @@ function App() {
           <div>
             <h1>Working.. 🔥</h1>
             <StCardListBox>
-              {todos
+              {data
                 .filter((todo: Todo) => {
                   return todo.isDone === false;
                 })
@@ -87,7 +99,7 @@ function App() {
           <div>
             <h1>Done..! 🎉</h1>
             <StCardListBox>
-              {todos
+              {data
                 .filter((todo: Todo) => {
                   return todo.isDone === true;
                 })
