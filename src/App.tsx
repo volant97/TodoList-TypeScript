@@ -1,19 +1,19 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux"; // useSelector
+// import { useDispatch } from "react-redux"; // useSelector
 import styled from "styled-components";
 // import { RootStateType } from "./redux/store";
 import { Todo } from "./types/todoType";
-import { addTodo, deleteTodo, switchTodo } from "./redux/modules/todoSlice";
 import uuid from "react-uuid";
-import { useQuery } from "react-query";
-import { getTodos } from "./api/todoAPI";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { getTodos, addTodo, deleteTodo, switchTodo } from "./api/todoAPI";
+import { CustomError } from "./types/CustomError";
 
 function App() {
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
 
   // const todos = useSelector((state: RootStateType) => state.todos);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   const handleTitleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -31,20 +31,63 @@ function App() {
       content,
       isDone: false,
     };
-    dispatch(addTodo(newTodo));
+    // dispatch(addTodo(newTodo));
+    addMutation.mutate(newTodo);
     setTitle("");
     setContent("");
   };
 
   const handleDeleteTodo = (id: string) => {
-    dispatch(deleteTodo(id));
+    // dispatch(deleteTodo(id));
+    deleteMutation.mutate(id);
   };
 
-  const handleSwitchTodo = (id: string) => {
-    dispatch(switchTodo(id));
+  const handleSwitchTodo = (id: string, isDone: boolean) => {
+    // dispatch(switchTodo(id));
+    switchMutation.mutate({ id, isDone });
   };
 
+  // 리액트 쿼리
+  // get
   const { data, isLoading, isError } = useQuery("todos", getTodos);
+
+  // post
+  const queryClient = useQueryClient();
+
+  const addMutation = useMutation(addTodo, {
+    onSuccess: (data) => {
+      queryClient.invalidateQueries("todos");
+    },
+    onError: (error: CustomError) => {
+      console.log("post-------------", error.code);
+      alert(`예상하지 못한 오류가 발생했습니다. 고객센터로 연락바랍니다.
+      오류 코드 : ${error.code}`);
+    },
+  });
+
+  // delete
+  const deleteMutation = useMutation(deleteTodo, {
+    onSuccess: (data) => {
+      queryClient.invalidateQueries("todos");
+    },
+    onError: (error: CustomError) => {
+      console.log("delete-------------", error.code);
+      alert(`예상하지 못한 오류가 발생했습니다. 고객센터로 연락바랍니다.
+      오류 코드 : ${error.code}`);
+    },
+  });
+
+  // patch
+  const switchMutation = useMutation(switchTodo, {
+    onSuccess: (data) => {
+      queryClient.invalidateQueries("todos");
+    },
+    onError: (error: CustomError) => {
+      console.log("patch-------------", error.code);
+      alert(`예상하지 못한 오류가 발생했습니다. 고객센터로 연락바랍니다.
+      오류 코드 : ${error.code}`);
+    },
+  });
 
   if (isLoading) {
     return <h1>로딩중...</h1>;
@@ -88,7 +131,9 @@ function App() {
                       <button onClick={() => handleDeleteTodo(todo.id)}>
                         삭제
                       </button>
-                      <button onClick={() => handleSwitchTodo(todo.id)}>
+                      <button
+                        onClick={() => handleSwitchTodo(todo.id, todo.isDone)}
+                      >
                         완료
                       </button>
                     </StCard>
@@ -112,7 +157,9 @@ function App() {
                       <button onClick={() => handleDeleteTodo(todo.id)}>
                         삭제
                       </button>
-                      <button onClick={() => handleSwitchTodo(todo.id)}>
+                      <button
+                        onClick={() => handleSwitchTodo(todo.id, todo.isDone)}
+                      >
                         취소
                       </button>
                     </StCard>
@@ -135,8 +182,8 @@ const StContainer = styled.div`
   align-items: center;
   gap: 1rem;
   margin: 1rem;
-  max-width: 800px;
-  min-width: 550px;
+  max-width: 1200px;
+  min-width: 800px;
 
   h1 {
     font-size: 1.5rem;
