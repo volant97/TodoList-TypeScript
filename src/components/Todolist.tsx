@@ -8,7 +8,13 @@ import { deleteTodo, getTodos, switchTodo } from "../api/todoAPI";
 function Todolist({ isWorking }: { isWorking: boolean }) {
   const handleDeleteTodo = (id: string) => {
     // dispatch(deleteTodo(id));
-    deleteMutation.mutate(id);
+    const result: boolean = window.confirm("정말 삭제하시겠습니까?");
+    if (result === true) {
+      alert("삭제되었습니다.");
+      deleteMutation.mutate(id);
+    } else {
+      alert("삭제 취소되었습니다.");
+    }
   };
 
   const handleSwitchTodo = (id: string, isDone: boolean) => {
