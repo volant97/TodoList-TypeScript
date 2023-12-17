@@ -31,11 +31,11 @@ function Input() {
     };
 
     if (title.length < 1 || title.length > 12) {
-      return alert("title 오류");
+      return alert("제목을 1~12글자로 입력해주세요.");
     }
 
     if (content.length < 1 || content.length > 19) {
-      return alert("content 오류");
+      return alert("내용을 1~19글자로 입력해주세요.");
     }
 
     // dispatch(addTodo(newTodo));
